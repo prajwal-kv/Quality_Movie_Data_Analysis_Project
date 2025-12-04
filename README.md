@@ -1,4 +1,3 @@
-# Quality_Movie_Data_Analysis_Project
 
 # Quality Movie Data Analysis Project
 
