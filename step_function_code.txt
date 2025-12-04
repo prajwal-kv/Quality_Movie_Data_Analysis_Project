@@ -1,0 +1,82 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "StartCrawler",
+  "States": {
+    "StartCrawler": {
+      "Type": "Task",
+      "Arguments": {
+        "Name": "crawl-movies-in-s3"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:glue:startCrawler",
+      "Next": "GetCrawler"
+    },
+    "GetCrawler": {
+      "Type": "Task",
+      "Arguments": {
+        "Name": "crawl_movies_data_in_redshift"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:glue:getCrawler",
+      "Next": "Is_Running?"
+    },
+    "Is_Running?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "Wait",
+          "Condition": "{% $states.input.Crawler.State = 'RUNNING' %}"
+        }
+      ],
+      "Default": "Glue StartJobRun"
+    },
+    "Wait": {
+      "Type": "Wait",
+      "Seconds": 5,
+      "Next": "GetCrawler"
+    },
+    "Glue StartJobRun": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Arguments": {
+        "JobName": "movie_data_analysis"
+      },
+      "Next": "Glue_Job_Status",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "Next": "failed_state"
+        }
+      ]
+    },
+    "Glue_Job_Status": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "SNS Publish",
+          "Condition": "{% $states.input.JobRunState = 'SUCCEEDED' %}"
+        }
+      ],
+      "Default": "failed_state"
+    },
+    "SNS Publish": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "Message": "{% $states.input %}",
+        "TopicArn": "arn:aws:sns:us-east-1:512978621383:success"
+      },
+      "End": true
+    },
+    "failed_state": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "Message": "{% $states.input %}",
+        "TopicArn": "arn:aws:sns:us-east-1:512978621383:email"
+      },
+      "End": true
+    }
+  },
+  "QueryLanguage": "JSONata"
+}

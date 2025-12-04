@@ -1,0 +1,491 @@
+{
+	"jobConfig": {
+		"name": "movie_data_analysis",
+		"description": "",
+		"role": "arn:aws:iam::512978621383:role/quality-project",
+		"command": "glueetl",
+		"version": "5.0",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 2,
+		"maxCapacity": 2,
+		"jobRunQueuingEnabled": false,
+		"maxRetries": 0,
+		"timeout": 480,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "movie_data_analysis.py",
+		"scriptLocation": "s3://aws-glue-assets-512978621383-us-east-1/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [
+			{
+				"key": "--JOB_NAME",
+				"value": "movie_data_analysis",
+				"existing": false
+			}
+		],
+		"tags": [],
+		"jobMode": "VISUAL_MODE",
+		"createdOn": "2025-12-03T18:42:52.991Z",
+		"developerMode": false,
+		"connectionsList": [
+			"Jdbc connection"
+		],
+		"temporaryDirectory": "s3://aws-glue-assets-512978621383-us-east-1/temporary/",
+		"glueHiveMetastore": true,
+		"etlAutoTuning": true,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"bookmark": "job-bookmark-disable",
+		"sparkPath": "s3://aws-glue-assets-512978621383-us-east-1/sparkHistoryLogs/",
+		"flexExecution": false,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null,
+		"pythonPath": "",
+		"dependentPath": "",
+		"additionalPythonModules": ""
+	},
+	"dag": {
+		"node-1764771406184": {
+			"nodeId": "node-1764771406184",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764768709309"
+			],
+			"name": "ruleOutcomes",
+			"generatedNodeName": "ruleOutcomes_node1764771406184",
+			"classification": "Transform",
+			"type": "SelectFromCollection",
+			"index": 0,
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764771610030": {
+			"nodeId": "node-1764771610030",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764771406184"
+			],
+			"name": "Data target",
+			"generatedNodeName": "Datatarget_node1764771610030",
+			"classification": "DataSink",
+			"type": "S3",
+			"streamingBatchInterval": 100,
+			"format": "glueparquet",
+			"compression": "snappy",
+			"numberTargetPartitions": "0",
+			"path": "s3://movies-gds-one/rule_outcome_from_etl/",
+			"partitionKeys": [],
+			"schemaChangePolicy": {
+				"enableUpdateCatalog": false,
+				"updateBehavior": null,
+				"database": null,
+				"table": null
+			},
+			"updateCatalogOptions": "none",
+			"autoDataQuality": {
+				"isEnabled": true,
+				"evaluationContext": "EvaluateDataQuality_node1764768282752"
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764773045300": {
+			"nodeId": "node-1764773045300",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764772249996"
+			],
+			"name": "Amazon S3",
+			"generatedNodeName": "AmazonS3_node1764773045300",
+			"classification": "DataSink",
+			"type": "S3",
+			"streamingBatchInterval": 100,
+			"format": "glueparquet",
+			"compression": "snappy",
+			"numberTargetPartitions": "0",
+			"path": "s3://movies-gds-one/bad_records/",
+			"partitionKeys": [],
+			"schemaChangePolicy": {
+				"enableUpdateCatalog": false,
+				"updateBehavior": null,
+				"database": null,
+				"table": null
+			},
+			"updateCatalogOptions": "none",
+			"autoDataQuality": {
+				"isEnabled": true,
+				"evaluationContext": "EvaluateDataQuality_node1764768282752"
+			},
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764772249938": {
+			"nodeId": "node-1764772249938",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764772249656"
+			],
+			"name": "default_group",
+			"generatedNodeName": "default_group_node1764772249938",
+			"classification": "Transform",
+			"type": "SelectFromCollection",
+			"index": 0,
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764773255978": {
+			"nodeId": "node-1764773255978",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764773203165"
+			],
+			"name": "AWS Glue Data Catalog",
+			"generatedNodeName": "AWSGlueDataCatalog_node1764773255978",
+			"classification": "DataSink",
+			"type": "Redshift",
+			"streamingBatchInterval": 100,
+			"database": "rs-db",
+			"table": "dev_movies_imdb_movies_rating",
+			"format": "json",
+			"partitionKeys": [],
+			"upsertRedshiftOptions": null,
+			"calculatedType": "",
+			"isUpsert": false,
+			"redshiftTmpDir": "s3://movies-gds-one/temporary_data_folder/",
+			"tmpDirIAMRole": "arn:aws:iam::512978621383:role/service-role/AmazonRedshift-CommandsAccessRole-20251203T125812",
+			"codeGenVersion": 2
+		},
+		"node-1764772249656": {
+			"nodeId": "node-1764772249656",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764771404583"
+			],
+			"name": "Conditional Router",
+			"generatedNodeName": "ConditionalRouter_node1764772249656",
+			"classification": "Transform",
+			"type": "Route",
+			"groupFiltersList": [
+				{
+					"logicalOperator": "AND",
+					"filters": [],
+					"groupName": "default_group"
+				},
+				{
+					"logicalOperator": "AND",
+					"filters": [
+						{
+							"operation": "REGEX",
+							"negated": false,
+							"values": [
+								{
+									"type": "CONSTANT",
+									"value": [
+										"Failed"
+									]
+								},
+								{
+									"type": "COLUMNEXTRACTED",
+									"value": "DataQualityEvaluationResult"
+								}
+							]
+						}
+					],
+					"groupName": "failed_records"
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764768358029": {
+			"nodeId": "node-1764768358029",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "movies_from_s3",
+			"generatedNodeName": "movies_from_s3_node1764768358029",
+			"classification": "DataSource",
+			"type": "Catalog",
+			"isCatalog": true,
+			"database": "s3-movies",
+			"table": "movies_raw_input_data",
+			"partitionPredicate": "",
+			"calculatedType": "",
+			"runtimeParameters": [],
+			"codeGenVersion": 2
+		},
+		"node-1764768709309": {
+			"nodeId": "node-1764768709309",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764768358029"
+			],
+			"name": "Evaluate Data Quality",
+			"generatedNodeName": "EvaluateDataQuality_node1764768709309",
+			"classification": "Transform",
+			"type": "EvaluateDataQualityMultiFrame",
+			"ruleset": "# Example rules: Completeness \"colA\" between 0.4 and 0.8, ColumnCount > 10\nRules = [\n        IsComplete \"imdb_rating\",\n        ColumnValues \"imdb_rating\" between 8.0 and 10\n\n]",
+			"output": "EvaluationResults",
+			"publishingOptions": {
+				"evaluationContext": null,
+				"cloudWatchMetricsEnabled": true,
+				"resultsS3Prefix": "",
+				"resultsPublishingEnabled": true
+			},
+			"stopJobOnFailureOptions": {
+				"stopJobOnFailureTiming": null
+			},
+			"additionalOptions": {
+				"observations.scope": "ALL",
+				"performanceTuning.caching": "CACHE_NOTHING"
+			},
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764772249996": {
+			"nodeId": "node-1764772249996",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764772249656"
+			],
+			"name": "failed_records",
+			"generatedNodeName": "failed_records_node1764772249996",
+			"classification": "Transform",
+			"type": "SelectFromCollection",
+			"index": 0,
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764773203165": {
+			"nodeId": "node-1764773203165",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764772249938"
+			],
+			"name": "Change Schema",
+			"generatedNodeName": "ChangeSchema_node1764773203165",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "poster_link",
+					"fromPath": [
+						"poster_link"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "series_title",
+					"fromPath": [
+						"series_title"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "released_year",
+					"fromPath": [
+						"released_year"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "certificate",
+					"fromPath": [
+						"certificate"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "runtime",
+					"fromPath": [
+						"runtime"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "genre",
+					"fromPath": [
+						"genre"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "imdb_rating",
+					"fromPath": [
+						"imdb_rating"
+					],
+					"toType": "double",
+					"fromType": "double",
+					"dropped": false
+				},
+				{
+					"toKey": "overview",
+					"fromPath": [
+						"overview"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "meta_score",
+					"fromPath": [
+						"meta_score"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": false
+				},
+				{
+					"toKey": "director",
+					"fromPath": [
+						"director"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "star1",
+					"fromPath": [
+						"star1"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "star2",
+					"fromPath": [
+						"star2"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "star3",
+					"fromPath": [
+						"star3"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "star4",
+					"fromPath": [
+						"star4"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "no_of_votes",
+					"fromPath": [
+						"no_of_votes"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": false
+				},
+				{
+					"toKey": "gross",
+					"fromPath": [
+						"gross"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				},
+				{
+					"toKey": "DataQualityRulesPass",
+					"fromPath": [
+						"DataQualityRulesPass"
+					],
+					"toType": "array",
+					"fromType": "array",
+					"dropped": false
+				},
+				{
+					"toKey": "DataQualityRulesFail",
+					"fromPath": [
+						"DataQualityRulesFail"
+					],
+					"toType": "array",
+					"fromType": "array",
+					"dropped": false
+				},
+				{
+					"toKey": "DataQualityRulesSkip",
+					"fromPath": [
+						"DataQualityRulesSkip"
+					],
+					"toType": "array",
+					"fromType": "array",
+					"dropped": false
+				},
+				{
+					"toKey": "DataQualityEvaluationResult",
+					"fromPath": [
+						"DataQualityEvaluationResult"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1764771404583": {
+			"nodeId": "node-1764771404583",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1764768709309"
+			],
+			"name": "rowLevelOutcomes",
+			"generatedNodeName": "rowLevelOutcomes_node1764771404583",
+			"classification": "Transform",
+			"type": "SelectFromCollection",
+			"index": 0,
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		}
+	},
+	"hasBeenSaved": false,
+	"usageProfileName": null
+}
