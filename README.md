@@ -309,7 +309,7 @@ SELECT * FROM mv_yearly_trends;
 ## 👤 Author
 
 **Your Name**
-- Email: prajalkv620@gmail.com
+- Email: prajwalkv620@gmail.com
 - LinkedIn: https://www.linkedin.com/in/prajwal-kv-data-ai-engineer/
 
 
